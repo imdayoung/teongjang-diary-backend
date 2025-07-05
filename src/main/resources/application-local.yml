@@ -1,0 +1,19 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://${MYSQL_HOST_LOCAL}:${MYSQL_PORT_LOCAL}/${MYSQL_DB_LOCAL}
+    username: ${MYSQL_USERNAME_LOCAL}
+    password: ${MYSQL_PASSWORD_LOCAL}
+
+mybatis:
+  config-location: classpath:mybatis-config.xml
+  mapper-locations: classpath:mapper/**/*.xml
+
+jwt:
+  secretKey: ${JWT_SECRET_KEY}
+  access:
+    expiration: ${JWT_ACCESS_EXPIRATION}
+    header: Authorization
+  refresh:
+    expiration: ${JWT_REFRESH_EXPIRATION}
+    header: Authorization-refresh
