@@ -1,6 +1,7 @@
 package com.imdayoung.teongjangdiary.global.jwt.filter;
 
 import com.imdayoung.teongjangdiary.global.jwt.service.JwtService;
+import com.imdayoung.teongjangdiary.global.login.dto.CustomUserDetails;
 import com.imdayoung.teongjangdiary.user.dto.UserVO;
 import com.imdayoung.teongjangdiary.user.mapper.UserMapper;
 import jakarta.servlet.FilterChain;
@@ -11,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.core.authority.mapping.NullAuthoritiesMapper;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -18,6 +20,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Collections;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -55,7 +58,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         userMapper.findUserByRefreshToken(refreshToken)
                 .ifPresent(user -> {
                     String reIssuedRefreshToken = reIssueRefreshToken(user);
-                    jwtService.sendAccessAndRefreshToken(response, jwtService.createAccessToken(user.getLgnId()), reIssuedRefreshToken);
+                    jwtService.sendAccessAndRefreshToken(response, jwtService.createAccessToken(user.getLgnId(), user.getUserId()), reIssuedRefreshToken);
                 });
     }
 
@@ -71,7 +74,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         jwtService.extractAccessToken(request)
                 .filter(jwtService::isTokenValid)
                 .flatMap(jwtService::extractLgnId)
-                .flatMap(userMapper::findUserByUserId)
+                .flatMap(userMapper::findUserByLgnId)
                 .ifPresent(this::saveAuthentication);
 
         filterChain.doFilter(request, response);
@@ -79,13 +82,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     public void saveAuthentication(UserVO user) {
 
-        String password = user.getLgnPwd();
+        UserDetails userDetails = new CustomUserDetails(
+                user.getLgnId(),
+                user.getLgnPwd(),
+                Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")),
+                user.getUserId());
 
-        UserDetails userDetails = org.springframework.security.core.userdetails.User.builder()
-                .username(user.getLgnId())
-                .password(password)
-                .roles("ROLE_USER")
-                .build();
+//        UserDetails userDetails = org.springframework.security.core.userdetails.User.builder()
+//                .username(user.getLgnId())
+//                .password(password)
+//                .roles("USER")
+//                .build();
 
         Authentication authentication =
                 new UsernamePasswordAuthenticationToken(userDetails, null,

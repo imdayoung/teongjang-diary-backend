@@ -40,17 +40,19 @@ public class JwtService {
     private static final String ACCESS_TOKEN_SUBJECT = "AccessToken";
     private static final String REFRESH_TOKEN_SUBJECT = "RefreshToken";
     private static final String LGNID_CLAIM = "lgnId";
+    private static final String USERID_CLAIM = "userId";
     private static final String BEARER = "Bearer ";
 
     private final UserMapper userMapper;
 
-    public String createAccessToken(String lgnId) {
+    public String createAccessToken(String lgnId, String userId) {
 
         Date now = new Date();
         return JWT.create()
                 .withSubject(ACCESS_TOKEN_SUBJECT)
                 .withExpiresAt(new Date(now.getTime() + accessTokenExpirationPeriod))
                 .withClaim(LGNID_CLAIM, lgnId)
+                .withClaim(USERID_CLAIM, userId)
                 .sign(Algorithm.HMAC512(secretKey));
     }
 
@@ -107,6 +109,20 @@ public class JwtService {
                     .build()
                     .verify(accessToken)
                     .getClaim(LGNID_CLAIM)
+                    .asString());
+        } catch (Exception e) {
+            log.error("Access Token이 유효하지 않습니다.");
+            return Optional.empty();
+        }
+    }
+
+    public Optional<String> extractUserId(String accessToken) {
+
+        try {
+            return Optional.ofNullable(JWT.require(Algorithm.HMAC512(secretKey))
+                    .build()
+                    .verify(accessToken)
+                    .getClaim(USERID_CLAIM)
                     .asString());
         } catch (Exception e) {
             log.error("Access Token이 유효하지 않습니다.");

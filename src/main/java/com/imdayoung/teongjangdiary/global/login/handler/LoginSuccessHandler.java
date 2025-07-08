@@ -2,6 +2,7 @@ package com.imdayoung.teongjangdiary.global.login.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.imdayoung.teongjangdiary.global.jwt.service.JwtService;
+import com.imdayoung.teongjangdiary.global.login.dto.CustomUserDetails;
 import com.imdayoung.teongjangdiary.global.response.response.ApiResponse;
 import com.imdayoung.teongjangdiary.user.mapper.UserMapper;
 import jakarta.servlet.ServletException;
@@ -29,8 +30,9 @@ public class LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
 
-        String userId = extractUsername(authentication);
-        String accessToken = jwtService.createAccessToken(userId);
+        String lgnId = extractUsername(authentication);
+        String userId = extractUserId(authentication);
+        String accessToken = jwtService.createAccessToken(lgnId, userId);
         String refreshToken = jwtService.createRefreshToken();
 
         jwtService.sendAccessAndRefreshToken(response, accessToken, refreshToken);
@@ -69,5 +71,16 @@ public class LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         return userDetails.getUsername();
+    }
+
+    private String extractUserId(Authentication authentication) {
+
+        Object principal = authentication.getPrincipal();
+
+        if (principal instanceof CustomUserDetails) {
+            return ((CustomUserDetails) principal).getUserId();
+        }
+
+        return null;
     }
 }
