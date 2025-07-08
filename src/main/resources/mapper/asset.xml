@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.imdayoung.teongjangdiary.asset.mapper.AssetMapper">
+    <select id="selectAssetList" resultType="AssetVO">
+        SELECT
+            a.asset_id,
+            ag.asset_group_nm,
+            a.asset_group_id,
+            a.user_id,
+            a.asset_nm,
+            a.amount,
+            a.memo,
+            a.show_yn,
+            a.asset_seq,
+            a.created_at,
+            a.updated_at,
+            CASE
+                WHEN a.asset_group_id = 3 THEN (
+                    SELECT IFNULL(-SUM(t.amount), 0)
+                    FROM tb_txn t
+                    WHERE t.asset_id = a.asset_id
+                      AND DATE_FORMAT(t.txn_dt, '%Y-%m') = DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 1 MONTH), '%Y-%m')
+                )
+                ELSE 0
+                END AS prevAmount
+        FROM tb_asset a
+            JOIN tb_asset_group ag ON a.asset_group_id = ag.asset_group_id;
+    </select>
+</mapper>
