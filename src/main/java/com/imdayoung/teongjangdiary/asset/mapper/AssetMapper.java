@@ -8,5 +8,5 @@ import java.util.List;
 @Mapper
 public interface AssetMapper {
 
-    List<AssetVO> selectAssetList(AssetVO txnVO);
+    List<AssetVO> selectAssetList(String userId);
 }
