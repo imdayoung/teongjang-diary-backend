@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.imdayoung.teongjangdiary.txn.mapper.TxnMapper">
+    <select id="selectTxnList" resultType="TxnVO">
+        SELECT
+            t.*
+            , a.asset_nm
+            , c.category_nm
+            , CASE
+                WHEN t.txn_type = 1 THEN '수입'
+                WHEN t.txn_type = 2 THEN '지출'
+                WHEN t.txn_type = 3 THEN '이체입금'
+                WHEN t.txn_type = 4 THEN '이체출금'
+            END AS txn_type_nm
+            , CASE WEEKDAY(txn_dt)
+                WHEN 0 THEN '월요일'
+                WHEN 1 THEN '화요일'
+                WHEN 2 THEN '수요일'
+                WHEN 3 THEN '목요일'
+                WHEN 4 THEN '금요일'
+                WHEN 5 THEN '토요일'
+                WHEN 6 THEN '일요일'
+            END AS weekday
+        FROM tb_txn t
+            JOIN tb_asset a ON t.asset_id = a.asset_id
+            JOIN tb_category c ON t.category_id = c.category_id
+        WHERE 1 = 1
+            AND a.user_id = #{userId}
+            AND YEAR(txn_dt) = IFNULL(#{year}, YEAR(CURDATE()))
+            AND MONTH(txn_dt) = IFNULL(#{month}, MONTH(CURDATE()))
+        ORDER BY
+            txn_dt DESC
+            , t.updated_at DESC
+    </select>
+
+    <select id="selectTotalSummary" resultType="TotalSummaryVO">
+        SELECT
+            IFNULL(SUM(CASE WHEN txn_type = 1 THEN t.amount END), 0) AS income
+            , IFNULL(SUM(CASE WHEN txn_type = 2 THEN t.amount END), 0) AS expense
+            , IFNULL(SUM(CASE WHEN txn_type = 1 THEN t.amount END), 0) - IFNULL(SUM(CASE WHEN txn_type = 2 THEN t.amount END), 0) AS total
+        FROM tb_txn t
+                 JOIN tb_asset a ON t.asset_id = a.asset_id
+        WHERE a.user_id = #{userId}
+            AND YEAR(txn_dt) = IFNULL(#{year}, YEAR(CURDATE()))
+            AND MONTH(txn_dt) = IFNULL(#{month}, MONTH(CURDATE()))
+    </select>
+
+    <insert id="insertTxn" parameterType="TxnVO">
+        INSERT INTO tb_txn(user_id,
+                           category_id,
+                           content,
+                           asset_id,
+                           amount,
+                           memo,
+                           created_at,
+                           updated_at)
+        VALUES(#{userId},
+               #{categoryId},
+               #{content},
+               #{assetId},
+               #{amount},
+               #{memo},
+               now(),
+               now());
+    </insert>
+</mapper>

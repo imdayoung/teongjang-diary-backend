@@ -25,6 +25,10 @@
                 ELSE 0
                 END AS prevAmount
         FROM tb_asset a
-            JOIN tb_asset_group ag ON a.asset_group_id = ag.asset_group_id;
+            JOIN tb_asset_group ag ON a.asset_group_id = ag.asset_group_id
+        WHERE 1 = 1
+            AND user_id = #{userId}
+        ORDER BY
+            a.asset_group_id;
     </select>
 </mapper>
