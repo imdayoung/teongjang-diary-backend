@@ -8,30 +8,30 @@
     </select>
 
     <insert id="insertUser">
-        INSERT INTO TB_USER
-        VALUES(#{userId}, #{userNm}, #{lgnId}, #{lgnPwd}, now(), now())
+        INSERT INTO tb_user(user_id, user_nm, lgn_id, lgn_pwd)
+        VALUES(#{userId}, #{userNm}, #{lgnId}, #{lgnPwd})
     </insert>
 
     <select id="findUserByLgnId">
         SELECT *
-        FROM TB_USER
+        FROM tb_user
         WHERE lgn_id = #{lgnId}
     </select>
 
     <select id="findUserByUserId">
         SELECT *
-        FROM TB_USER
+        FROM tb_user
         WHERE user_id = #{userId}
     </select>
 
     <select id="findUserByRefreshToken">
         SELECT *
-        FROM TB_USER
+        FROM tb_user
         WHERE refreshToken = #{refreshToken}
     </select>
 
     <update id="updateRefreshToken">
-        UPDATE TB_USER
+        UPDATE tb_user
         SET refresh_token = #{refreshToken}
         WHERE user_id = #{userId}
     </update>

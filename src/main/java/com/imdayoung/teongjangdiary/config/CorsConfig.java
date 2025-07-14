@@ -17,6 +17,8 @@ public class CorsConfig {
 
         ArrayList<String> allowedOriginPatterns = new ArrayList<>();
         allowedOriginPatterns.add("http://localhost:5173");
+        allowedOriginPatterns.add("http://192.168.0.4:5173");
+        allowedOriginPatterns.add("https://imdayoung.github.io");
         configuration.setAllowedOrigins(allowedOriginPatterns);
 
         ArrayList<String> allowedHttpMethods = new ArrayList<>();

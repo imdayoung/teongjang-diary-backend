@@ -6,8 +6,8 @@
         <setting name="mapUnderscoreToCamelCase" value="true"/>
     </settings>
     <typeAliases>
-        <typeAlias type="com.imdayoung.teongjangdiary.asset.dto.AssetVO" alias="AssetVO"/>
-        <typeAlias type="com.imdayoung.teongjangdiary.txn.dto.TxnVO" alias="TxnVO"/>
-        <typeAlias type="com.imdayoung.teongjangdiary.user.dto.UserVO" alias="UserVO"/>
+        <package name="com.imdayoung.teongjangdiary.asset.dto"/>
+        <package name="com.imdayoung.teongjangdiary.txn.dto"/>
+        <package name="com.imdayoung.teongjangdiary.user.dto"/>
     </typeAliases>
 </configuration>
